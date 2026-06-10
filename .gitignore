@@ -1,0 +1,74 @@
+# =============================================================================
+# Obsidian Agent — .gitignore
+# =============================================================================
+
+# --- Python ---
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# --- Node / Electron ---
+node_modules/
+renderer/node_modules/
+renderer/dist/
+electron/renderer-dist/
+dist_electron/
+release/
+out/
+
+# --- Electron builder output ---
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.snap
+*.zip
+*.tar.gz
+*.blockmap
+
+# --- Environment & secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Vault (personal data — never commit) ---
+# The vault is a personal Obsidian folder; only code goes in the repo
+# C:\Users\Office\Documents\Daily\Office  ← external, not in workspace
+
+# --- Logs ---
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editor ---
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.suo
+*.user
+*.swp
+*~
+
+# --- Misc ---
+*.bak
+*.tmp

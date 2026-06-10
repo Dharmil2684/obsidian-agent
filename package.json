@@ -1,0 +1,32 @@
+{
+  "name": "obsidian-agent",
+  "version": "1.0.0-phase2",
+  "description": "Auto Obsidian Manager — Desktop App for Software Developer Workflow",
+  "main": "electron/main.js",
+  "scripts": {
+    "electron": "electron .",
+    "dev:vite": "npm --prefix renderer run dev",
+    "dev": "concurrently -n vite,electron -c cyan,yellow \"npm run dev:vite\" \"wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .\"",
+    "build": "npm --prefix renderer run build && electron-builder",
+    "install:all": "npm install && npm --prefix renderer install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.obsidian-agent.app",
+    "productName": "Obsidian Agent",
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "electron/assets/tray-icon.ico"
+    },
+    "files": ["electron/**/*", "package.json"],
+    "extraResources": [
+      { "from": "electron/renderer-dist", "to": "renderer-dist" }
+    ]
+  }
+}
