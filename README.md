@@ -181,7 +181,8 @@ pytest
 - [x] **Phase 1** — FastAPI backend, vault I/O, LLM-first agent, React UI, Electron window, 80 tests
 - [x] **Phase 2** — System tray, floating window, auto-hide, global hotkey, single-instance lock, Windows startup option
 - [x] **Phase 3** — `carry_tasks_forward`, EOD summary (Hermes-3), weekly summary (Groq), weekly note writer, 97 tests total
-- [ ] **Phase 4** — First-run setup wizard, settings panel, vault scanner (`generate_context.py`)
+- [x] **Phase 4** — Settings panel (vault path, model, backups), `/settings` + `/refresh-context` + `/first-run` endpoints, vault scanner auto-update, onboarding welcome on first run, 113 tests total
+- [ ] **Phase 5** — ChromaDB semantic search, project context linking, blocker age tracking
 - [ ] **Phase 5** — ChromaDB semantic search, project context linking, blocker age tracking
 - [ ] **Phase 6** — Auto-updater, Windows toast notifications, dark/light theme toggle, `.exe` packaging
 

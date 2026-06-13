@@ -75,5 +75,13 @@ export function useChat() {
     [isLoading],
   )
 
-  return { messages, isLoading, sendMessage }
+  // Inject a synthetic agent message (used for onboarding welcome etc.)
+  const injectMessage = useCallback((content, role = 'agent') => {
+    setMessages(prev => [
+      ...prev,
+      { id: Date.now(), role, content, action: null, timestamp: new Date() },
+    ])
+  }, [])
+
+  return { messages, isLoading, sendMessage, injectMessage }
 }

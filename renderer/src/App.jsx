@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { useChat } from './hooks/useChat'
 import { useStatus } from './hooks/useStatus'
+import { useFirstRun } from './hooks/useFirstRun'
 import ChatWindow from './components/ChatWindow'
 import StatusStrip from './components/StatusStrip'
 import DomainTabs from './components/DomainTabs'
 import SlashMenu from './components/SlashMenu'
+import SettingsPanel from './components/SettingsPanel'
 
 const HINT_CMDS = ['/task', '/blocker', '/done', '/status', '/carry', '/clear', '/summary', '/week']
 
@@ -12,6 +14,7 @@ export default function App() {
   const [input, setInput] = useState('')
   const [showSlashMenu, setShowSlashMenu] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
+  const [showSettings, setShowSettings] = useState(false)
   const inputRef = useRef(null)
 
   // Detect if running inside Electron
@@ -20,8 +23,25 @@ export default function App() {
   const handleHide = () => window.electronAPI?.hideWindow()
   const handleQuit = () => window.electronAPI?.quitApp()
 
-  const { messages, isLoading, sendMessage } = useChat()
+  const { messages, isLoading, sendMessage, injectMessage } = useChat()
   const { stats, connected } = useStatus()
+  const { isFirstRun, checked } = useFirstRun()
+
+  // Show onboarding welcome on first run (once)
+  useEffect(() => {
+    if (checked && isFirstRun) {
+      injectMessage(
+        "👋 Welcome to **Obsidian Agent**!\n\n" +
+        "Your vault is empty — here's how to get started:\n\n" +
+        "- Type naturally: *\"Add a backend task to set up the database\"*\n" +
+        "- Use slash commands: `/task`, `/blocker`, `/status`, `/summary`\n" +
+        "- Press **⚙** to configure your vault path and model\n" +
+        "- Run **↻ Refresh Context** in settings to let the agent learn your vault\n\n" +
+        "I'm watching your vault 24/7. Let's get to work!",
+        'agent'
+      )
+    }
+  }, [checked, isFirstRun])
 
   const handleSend = () => {
     const trimmed = input.trim()
@@ -58,6 +78,8 @@ export default function App() {
   })
 
   return (
+    <>
+      {showSettings && <SettingsPanel onClose={() => setShowSettings(false)} />}
     <div style={S.app}>
       {/* Header */}
       <div style={S.header}>
@@ -79,9 +101,13 @@ export default function App() {
           </span>
           {isElectron && (
             <div style={S.winControls}>
+              <button style={S.winBtn} title="Settings" onClick={() => setShowSettings(true)}>⚙</button>
               <button style={S.winBtn} title="Hide (Ctrl+Shift+Space to reopen)" onClick={handleHide}>─</button>
               <button style={{ ...S.winBtn, ...S.winBtnClose }} title="Quit" onClick={handleQuit}>✕</button>
             </div>
+          )}
+          {!isElectron && (
+            <button style={S.winBtn} title="Settings" onClick={() => setShowSettings(true)}>⚙</button>
           )}
         </div>
       </div>
@@ -144,6 +170,7 @@ export default function App() {
         </button>
       </div>
     </div>
+    </>
   )
 }
 
