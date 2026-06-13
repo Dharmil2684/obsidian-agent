@@ -9,6 +9,7 @@ from backend.vault.templates import (
     get_active_blockers_template,
     get_context_template,
     get_changelog_template,
+    get_weekly_template,
 )
 
 
@@ -328,3 +329,68 @@ def _log_changelog(message: str):
     changelog_path.write_text(
         changelog_path.read_text(encoding="utf-8") + entry, encoding="utf-8"
     )
+
+
+# ---------------------------------------------------------------------------
+# EOD summary — write LLM output into the ## 🌙 EOD Summary block
+# ---------------------------------------------------------------------------
+
+def write_eod_summary(summary_text: str, for_date: date = None) -> Path:
+    """Write the LLM-generated EOD summary into today's daily note."""
+    path = get_or_create_daily_note(for_date)
+    _backup_file(path)
+    content = path.read_text(encoding="utf-8")
+
+    marker = "## 🌙 EOD Summary"
+    if marker in content:
+        # Replace everything after the marker until the next ## heading or EOF
+        before_marker = content[:content.index(marker) + len(marker)]
+        after_marker  = content[content.index(marker) + len(marker):]
+        # Strip existing content in that section
+        next_heading  = re.search(r"\n## ", after_marker)
+        tail          = after_marker[next_heading.start():] if next_heading else ""
+        content       = before_marker + "\n" + summary_text.strip() + "\n" + tail
+    else:
+        content += f"\n{marker}\n{summary_text.strip()}\n"
+
+    path.write_text(content, encoding="utf-8")
+    _log_changelog("Wrote EOD summary")
+    return path
+
+
+# ---------------------------------------------------------------------------
+# Weekly note
+# ---------------------------------------------------------------------------
+
+def get_or_create_weekly_note(for_date: date = None) -> Path:
+    """Return (and create if missing) the Weekly note for the ISO week containing for_date."""
+    if for_date is None:
+        for_date = date.today()
+    year, week, _ = for_date.isocalendar()
+    path = config.VAULT_PATH / "Weekly" / f"{year}-W{week:02d}.md"
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(get_weekly_template(year, week), encoding="utf-8")
+    return path
+
+
+def write_weekly_summary(summary_text: str, for_date: date = None) -> Path:
+    """Write the Groq-generated weekly summary text into the weekly note."""
+    path = get_or_create_weekly_note(for_date)
+    _backup_file(path)
+    content = path.read_text(encoding="utf-8")
+
+    marker = "## 🤖 AI Weekly Summary"
+    if marker not in content:
+        content += f"\n{marker}\n"
+
+    before = content[:content.index(marker) + len(marker)]
+    after  = content[content.index(marker) + len(marker):]
+    # Trim existing summary block up to next ## or EOF
+    next_h = re.search(r"\n## ", after)
+    tail   = after[next_h.start():] if next_h else ""
+    content = before + "\n" + summary_text.strip() + "\n" + tail
+
+    path.write_text(content, encoding="utf-8")
+    _log_changelog("Wrote weekly summary")
+    return path

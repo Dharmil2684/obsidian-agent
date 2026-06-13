@@ -32,6 +32,7 @@ _ACK_DONE    = ["Nice work!", "Great, marked as done!", "Awesome, checked off!",
 _ACK_BLOCKER = ["Logged!", "Noted, that's a pain.", "Got it, blocker logged!"]
 _ACK_RESOLVE = ["Nice, glad that's sorted!", "Great fix!", "Resolved and archived!"]
 _ACK_CLEAR   = ["Done!", "All clear!", "Wiped."]
+_ACK_CARRY   = ["Carried over!", "Pulled in from yesterday!", "Got them —", "Here you go —"]
 
 def _ack(pool: list) -> str:
     return random.choice(pool)
@@ -144,6 +145,7 @@ async def process_message(message: str) -> dict:
             elif intent == "create_blocker":  prefix = f"{_ack(_ACK_BLOCKER)} "
             elif intent == "resolve_blocker": prefix = f"{_ack(_ACK_RESOLVE)} "
             elif intent == "clear_tasks":     prefix = f"{_ack(_ACK_CLEAR)} "
+            elif intent == "carry_forward":   prefix = f"{_ack(_ACK_CARRY)} "
 
         return {
             "response": prefix + tool_result.get("message", "Done."),
